@@ -250,7 +250,7 @@
         body[data-mode="fg"] .spin-btn { background: linear-gradient(135deg, #e1bee7 0%, #ba68c8 100%); box-shadow: 0 4px 15px rgba(186, 104, 200, 0.4); }
 
         .btn-group-row { display: flex; gap: 8px; margin-bottom: 10px; }
-        .btn-small { flex: 1; padding: 10px; font-size: 12px; background: #333; border: none; color: #ccc; border-radius: 4px; font-weight: 600; transition: all 0.2s; }
+        .btn-small { flex: 1; padding: 10px; font-size: 12px; background: #333; border: none; color: #ccc; border-radius: 4px; font-weight: 600; transition: all 0.2s; cursor: pointer;}
         .btn-small:hover { background: #444; color: #fff; }
         
         .reset-btn { width: 100%; background: transparent; border: none; color: #666; font-size: 12px; margin-top: 8px; cursor: pointer; }
@@ -291,7 +291,7 @@
             border: 2px dashed #4fc3f7; 
             position: absolute; top: 50%; left: 50%;
             transform: translate(var(--top-offset-x), calc(-100% - var(--top-offset-y)));
-            display: none; /* JS toggles flex */
+            display: none; 
             justify-content: flex-start; z-index: 15; box-sizing: content-box;
             background: rgba(0,0,0,0.2);
             align-items: center;
@@ -309,11 +309,7 @@
             display: flex; 
             gap: var(--symbol-gap); 
             height: 100%; 
-            
-            /* === 新增下面這行 === */
-            /* 讓內容可以根據變數進行位移，且不影響遮罩位置 */
             transform: translate(var(--mask-content-x, 0px), var(--mask-content-y, 0px));
-            /* =================== */
         }
         .reel { width: var(--symbol-width); height: 100%; position: relative; }
         .reel-strip { display: flex; flex-direction: column; gap: var(--symbol-gap); width: 100%; transform: translateY(0); flex-shrink: 0; z-index: 1; }
@@ -328,7 +324,6 @@
 
         .reels-container.clip-active .symbol { overflow: hidden; }
 
-        /* === [修正] 遮罩改為掛在 Viewport 上，這樣內容移動時遮罩才不會跑 === */
         .viewport.mask-active {
             -webkit-mask-image: var(--mask-url);
             mask-image: var(--mask-url);
@@ -338,15 +333,10 @@
             mask-repeat: no-repeat;
             -webkit-mask-position: center;
             mask-position: center;
-            
-            /* 確保遮罩邊框提示 (選用) */
             border-style: dotted;
             border-color: #00bcd4;
         }
 
-        /* 原本的 reels-container.mask-active 請刪除或清空，只保留 transform 屬性在 .reels-container 即可 */
-        
-        /* 為了讓使用者知道遮罩生效，可以在 Viewport 加一個提示樣式 (選用) */
         .viewport.has-mask {
             border-style: dotted;
             border-color: #00bcd4;
@@ -434,7 +424,6 @@
         .modal-btn:active { transform: translateX(-50%) scale(0.95); }
         .modal-content.no-img .modal-btn:active { transform: scale(0.95); }
         
-        /* 當 Viewport 進入階梯模式時，隱藏大外框，改為顯示個別轉輪框 */
         .viewport.stagger-mode {
             border-color: transparent !important;
             background: transparent !important;
@@ -493,11 +482,20 @@
                         </div>
                     </div>
 
-                    <div class="control-group"><h3>圖騰管理 (目前模式)</h3><div class="upload-area"><button class="btn-small" onclick="document.getElementById('file-reset').click()">🔄 圖騰上傳</button><button class="btn-small" onclick="document.getElementById('file-add').click()">➕ 追加圖片</button></div><input type="file" id="file-reset" multiple accept="image/*" style="display:none"><input type="file" id="file-add" multiple accept="image/*" style="display:none"><div id="weight-list" class="image-list" style="display:none;"></div></div>
+                    <div class="control-group">
+                        <h3>圖騰管理 (目前模式)</h3>
+                        <div class="upload-area">
+                            <button class="btn-small" onclick="document.getElementById('file-reset').click()">🔄 圖騰上傳</button>
+                            <button class="btn-small" onclick="document.getElementById('file-add').click()">➕ 追加圖片</button>
+                            <button class="btn-small" style="background:#8e24aa; color:#fff; box-shadow:0 0 5px rgba(142,36,170,0.5);" onclick="document.getElementById('file-spine').click()">👾 上傳 Spine</button>
+                        </div>
+                        <input type="file" id="file-reset" multiple accept="image/*" style="display:none">
+                        <input type="file" id="file-add" multiple accept="image/*" style="display:none">
+                        <input type="file" id="file-spine" multiple accept=".json,.skel,.atlas,.txt,.png" style="display:none">
+                        <div id="weight-list" class="image-list" style="display:none;"></div>
+                    </div>
                     <div class="control-group"><h3>背景 / UI (目前模式)</h3><button class="btn-small" style="width:100%" onclick="document.getElementById('ui-input').click()">上傳介面圖</button><input type="file" id="ui-input" accept="image/*" style="display:none"></div>
                 </div>
-                     
-
 
                 <div id="tab-layout" class="tab-pane">
                      <div class="control-group"><h3>遊戲結構 (目前模式)</h3><div id="ctrl-reels"></div><div id="ctrl-rows"></div><div id="ctrl-gap"></div></div>
@@ -645,11 +643,11 @@
                 </div>
                 <div id="tab-system" class="tab-pane">
                     <hr style="border:0; border-top:1px solid #333; margin:15px 0;">
-<button class="sys-btn" style="background:#00bcd4; color:#000; box-shadow:0 4px 15px rgba(0,188,212,0.4);" onclick="runQCReport()">📊 生成 JSON 數值驗證報告</button>
-<div id="qc-result" style="margin-top:10px; font-size:11px; color:#ddd; background:#111; padding:10px; border-radius:5px; display:none; max-height:200px; overflow-y:auto;"></div>
+                    <button class="sys-btn" style="background:#00bcd4; color:#000; box-shadow:0 4px 15px rgba(0,188,212,0.4);" onclick="runQCReport()">📊 生成 JSON 數值驗證報告</button>
+                    <div id="qc-result" style="margin-top:10px; font-size:11px; color:#ddd; background:#111; padding:10px; border-radius:5px; display:none; max-height:200px; overflow-y:auto;"></div>
                      <div class="control-group"><h3>設定檔管理</h3><button class="sys-btn btn-save" id="btn-save">暫存設定 (LocalStorage)</button><button class="sys-btn btn-load" id="btn-load">讀取暫存</button><hr style="border:0; border-top:1px solid #333; margin:15px 0;"><button class="sys-btn btn-export" id="btn-export" style="background:#ff9800; color:#000;">📦 完整專案打包 (JSON+Images)</button><button class="sys-btn btn-export" onclick="document.getElementById('file-import').click()">📂 載入完整專案</button><input type="file" id="file-import" accept=".json" style="display:none"><hr style="border:0; border-top:1px solid #333; margin:15px 0;"><button class="sys-btn btn-export" id="btn-export-cocos">匯出 Cocos3.8 Config</button><button class="sys-btn btn-export" id="btn-export-unity">匯出 Unity Config</button><hr style="border:0; border-top:1px solid #333; margin:15px 0;">
-<button class="sys-btn" style="background:#e91e63; color:#fff; box-shadow:0 4px 15px rgba(233,30,99,0.4);" onclick="AutoRecorder.startTask(10)">🎥 自動錄製 10 手 (Auto 10 Spins)</button>
-<div id="rec-status" style="text-align:center; font-size:12px; color:#e91e63; margin-top:5px; height:20px;"></div></div>
+                    <button class="sys-btn" style="background:#e91e63; color:#fff; box-shadow:0 4px 15px rgba(233,30,99,0.4);" onclick="AutoRecorder.startTask(10)">🎥 自動錄製 10 手 (Auto 10 Spins)</button>
+                    <div id="rec-status" style="text-align:center; font-size:12px; color:#e91e63; margin-top:5px; height:20px;"></div></div>
                 </div>
             </div>
             <div class="sidebar-footer"><button id="btn-spin" class="spin-btn">SPIN</button><button id="btn-reset-all" class="reset-btn">重置所有設定</button></div>
@@ -692,7 +690,6 @@
 
     <script>
 
-        // v42.8: Win Check Control & Single Miss Rate
         const settings = {
             symbols: ['A', 'B', 'C', 'D', 'E', '1', '2', '3'], images: [],
             spinSpeed: 1500, stopDelay: 60, bounce: 20, reels: 5, rows: 6, ease: 'bounceBack',
@@ -702,18 +699,17 @@
             gap: 10, w: 100, h: 100, mw: 600, mh: 650, ox: -300, oy: -325,
             
             forceComplete: false, 
-            enableWinCheck: true, // New toggle
-            singleMissChance: 0,  // New rate (0-100)
+            enableWinCheck: true, 
+            singleMissChance: 0,  
             
             topReel: {
                 active: false,
                 cols: 4,
-                dir: 'rtl', // 'rtl' or 'ltr'
+                dir: 'rtl',
                 ox: 0,
                 oy: -150
             },
-            reelOffsets: [], // [NEW] 新增此行，用來儲存每條輪的偏移量
-            /** 模擬輪帶 JSON：{ symbol_id_map: {}, spin_emulator_data: [] }，空則維持原產生方式 */
+            reelOffsets: [], 
             spinEmulator: null,
             emulatorScriptIndex: 0
         };
@@ -728,7 +724,7 @@
             assets: {
                 cutscene: null,
                 winPanel: null,
-                mask: null // <--- 新增這一行
+                mask: null 
             },
             runtime: {
                 fgCurrentRound: 0,
@@ -737,45 +733,32 @@
             }
         };
 
-        // [新增] 更新遮罩內內容的位置
-        
-// [修正] 更新遮罩內內容的位置：避免在非事件觸發時 ReferenceError: event is not defined
-// - 允許外部直接呼叫 window.updateMaskContent()
-// - 也允許傳入 evt（例如 oninput="updateMaskContent(event)"）
-window.updateMaskContent = function(evt) {
-    // 取得數值
-    let oxRange = document.getElementById('mask-ox');
-    let oxNum = document.getElementById('num-mask-ox');
-    let oyRange = document.getElementById('mask-oy');
-    let oyNum = document.getElementById('num-mask-oy');
+        window.updateMaskContent = function(evt) {
+            let oxRange = document.getElementById('mask-ox');
+            let oxNum = document.getElementById('num-mask-ox');
+            let oyRange = document.getElementById('mask-oy');
+            let oyNum = document.getElementById('num-mask-oy');
 
-    // 事件物件：以參數為主，否則嘗試使用 window.event（舊版或 inline handler）
-    const e = evt || (typeof window !== 'undefined' ? window.event : undefined);
+            const e = evt || (typeof window !== 'undefined' ? window.event : undefined);
 
-    // 雙向綁定：只在真的由 input 事件觸發時才做同步
-    if (e && e.target) {
-        if (e.target === oxRange) oxNum.value = oxRange.value;
-        if (e.target === oxNum) oxRange.value = oxNum.value;
-        if (e.target === oyRange) oyNum.value = oyRange.value;
-        if (e.target === oyNum) oyRange.value = oyNum.value;
-    }
+            if (e && e.target) {
+                if (e.target === oxRange) oxNum.value = oxRange.value;
+                if (e.target === oxNum) oxRange.value = oxNum.value;
+                if (e.target === oyRange) oyNum.value = oyRange.value;
+                if (e.target === oyNum) oyRange.value = oyNum.value;
+            }
 
-    const x = oxNum.value;
-    const y = oyNum.value;
+            const x = oxNum.value;
+            const y = oyNum.value;
 
-    // 更新 CSS 變數
-    document.documentElement.style.setProperty('--mask-content-x', x + 'px');
-    document.documentElement.style.setProperty('--mask-content-y', y + 'px');
+            document.documentElement.style.setProperty('--mask-content-x', x + 'px');
+            document.documentElement.style.setProperty('--mask-content-y', y + 'px');
 
-    // 存入設定 (供打包用)
-    settings.maskContentX = parseInt(x, 10) || 0;
-    settings.maskContentY = parseInt(y, 10) || 0;
-
-    // 這裡採用「即時重繪」策略確保正確性：
-    updateGrid();
-}
-
-
+            settings.maskContentX = parseInt(x, 10) || 0;
+            settings.maskContentY = parseInt(y, 10) || 0;
+            
+            updateGrid();
+        }
 
         const APP_VERSION = '42.8';
         const PAD_TOP = 2;
@@ -811,7 +794,6 @@ window.updateMaskContent = function(evt) {
             } catch (e) { return null; }
         }
 
-        // --- Helper: Get Bezier String ---
         function _getBezierDefinition(easeType) {
             switch(easeType) {
                 case 'heavy': return { css: 'cubic-bezier(0.5, 1, 0.89, 1)', p1x:0.5, p1y:1, p2x:0.89, p2y:1, desc: 'Heavy Drop (Slow start, fast end)' };
@@ -822,7 +804,6 @@ window.updateMaskContent = function(evt) {
             }
         }
 
-        // --- Core Logic: Win Check ---
         function _isElementVisible(el) {
             if (!el) return false;
             const viewport = document.getElementById('viewport');
@@ -857,21 +838,16 @@ window.updateMaskContent = function(evt) {
             return out;
         }
 
-        // --- Logic: Reel Constraint (Restored) ---
         function _isImgAllowedForReel(img, reelIndex) { 
             if(!img) return false;
-            // 如果沒有定義規則函數，預設允許
             if (!img._reelPred) return true; 
             return img._reelPred(reelIndex); 
         }
 
         function _buildReelPredicate(specRaw) { 
-            // 如果字串為空，回傳「總是允許」
             if (!specRaw || typeof specRaw !== 'string' || !specRaw.trim()) {
                 return (reelIndex) => true; 
             }
-            
-            // 解析字串，例如 "1,3,5" 或 "1-3"
             const allowed = new Set();
             try {
                 const parts = specRaw.split(',');
@@ -887,9 +863,7 @@ window.updateMaskContent = function(evt) {
                         if (!isNaN(n)) allowed.add(n);
                     }
                 });
-            } catch(e) { console.error('Spec parse error', e); return () => true; }
-
-            // 如果解析後沒有有效數字，視為全允許，否則檢查 Set
+            } catch(e) { return () => true; }
             if(allowed.size === 0) return () => true;
             return (reelIndex) => allowed.has(reelIndex);
         }
@@ -968,25 +942,38 @@ window.updateMaskContent = function(evt) {
                 sym.style.setProperty('--win-scale', String(scale));
                 sym.style.setProperty('--win-dur', String(durMs) + 'ms');
                 
-                // [Spine 擴充] 檢查是否有 Spine 標記 (此處預留擴充接口)
+                // [Spine 擴充] 檢查是否有 Spine 標記
                 if (sym.dataset.hasSpine === 'true' && !sym.querySelector('.spine-player')) {
                     const img = sym.querySelector('.main-img');
                     if(img) img.style.opacity = '0'; // 隱藏靜態圖
                     
-                    const spineContainer = document.createElement('div');
-                    spineContainer.className = 'spine-player';
-                    spineContainer.style.width = '100%';
-                    spineContainer.style.height = '100%';
-                    sym.appendChild(spineContainer);
+                    const imgData = settings.images.find(i => String(i.id) === sym.dataset.symId);
                     
-                    // 這裡預設讀取同名檔案，實際可配合您的上傳邏輯修改
-                    /* new spine.SpinePlayer(spineContainer, {
-                        jsonUrl: "assets/" + sym.dataset.symId + ".json",
-                        atlasUrl: "assets/" + sym.dataset.symId + ".atlas",
-                        animation: "win", 
-                        alpha: true, backgroundColor: "#00000000", showControls: false
-                    });
-                    */
+                    if(imgData && imgData.spineData) {
+                        const spineContainer = document.createElement('div');
+                        spineContainer.className = 'spine-player';
+                        spineContainer.style.position = 'absolute';
+                        spineContainer.style.top = '0';
+                        spineContainer.style.left = '0';
+                        spineContainer.style.width = '100%';
+                        spineContainer.style.height = '100%';
+                        spineContainer.style.zIndex = '10';
+                        sym.appendChild(spineContainer);
+                        
+                        new spine.SpinePlayer(spineContainer, {
+                            jsonUrl: imgData.spineData.jsonName,
+                            atlasUrl: imgData.spineData.atlasName,
+                            rawDataURIs: imgData.spineData.rawDataURIs,
+                            alpha: true, 
+                            backgroundColor: "#00000000", 
+                            showControls: false,
+                            success: function(player) {
+                                const anims = player.skeleton.data.animations;
+                                const hasWin = anims.some(a => a.name === 'win');
+                                player.setAnimation(hasWin ? 'win' : anims[0].name);
+                            }
+                        });
+                    }
                 }
             }
             void divs[0].offsetWidth;
@@ -994,7 +981,6 @@ window.updateMaskContent = function(evt) {
             await _delay(durMs);
             for (const sym of divs) { 
                 sym.classList.remove('win-pulse', 'win-glow'); 
-                // 恢復靜態圖
                 const img = sym.querySelector('.main-img');
                 if(img) img.style.opacity = '1';
                 const sp = sym.querySelector('.spine-player');
@@ -1020,9 +1006,7 @@ window.updateMaskContent = function(evt) {
         }
 
         function _scheduleWinCheck() {
-            // New check: Toggle
             if (!settings.enableWinCheck) return; 
-
             const token = ++_winToken;
             setTimeout(() => { if (token !== _winToken) return; if (isSpinning) return; _playWaysWins(); }, 50); 
         }
@@ -1112,21 +1096,15 @@ window.updateMaskContent = function(evt) {
             alert(`Auto-Fit: ${newW}x${newH}px`);
         }
 
-
-        // --- [NEW] Reel Offset Functions ---
-
         window.renderReelOffsetsUI = function() {
             const container = document.getElementById('reel-offsets-container');
             container.innerHTML = '';
-    
-            // 確保數據陣列長度正確
             const reelsCount = settings.reels;
             if (!settings.reelOffsets) settings.reelOffsets = [];
             while (settings.reelOffsets.length < reelsCount) settings.reelOffsets.push(0);
     
             for (let i = 0; i < reelsCount; i++) {
                 const val = settings.reelOffsets[i] || 0;
-        
                 const row = document.createElement('div');
                 row.className = 'input-row';
                 row.style.marginBottom = '5px';
@@ -1147,30 +1125,21 @@ window.updateMaskContent = function(evt) {
         window.updateSingleReelOffset = function(index, value) {
             const val = parseInt(value);
             settings.reelOffsets[index] = val;
-    
-            // 同步 UI 數值
             const container = document.getElementById('reel-offsets-container');
             if(container && container.children[index]) {
                 const inputs = container.children[index].querySelectorAll('input');
                 if(inputs[0]) inputs[0].value = val;
                 if(inputs[1]) inputs[1].value = val;
             }
-
-            // 為了確保遮罩模式正確切換 (從 0 變非 0，或變回 0)，
-            // 我們直接呼叫 updateGrid 來重繪結構。
-            // 雖然效能稍微比只改 transform 差一點點，但能確保不會破圖。
-            // 如果覺得拖動卡頓，可以改回只設定 style.transform，但第一次從 0 調整時會需要手動觸發 updateGrid
-    
-            // 這裡採用「即時重繪」策略確保正確性：
             updateGrid();
         }
 
         window.resetReelOffsets = function() {
             settings.reelOffsets = new Array(settings.reels).fill(0);
             renderReelOffsetsUI();
-            updateGrid(); // 重繪以歸零
+            updateGrid(); 
         }
-        // --- NEW: Exact Stack Logic for Cascade Mode ---
+        
         function getWeightedImgExact(reelIndex, maxSpan) {
             if (!settings.images || settings.images.length === 0) return null;
             const r = Math.max(1, parseInt(reelIndex, 10) || 1);
@@ -1198,7 +1167,6 @@ window.updateMaskContent = function(evt) {
                 const remaining = targetHeight - currentH;
                 let img = getWeightedImgExact(reelIndex, remaining);
                 if (!img) {
-                    // Fallback: try to find any 1-span img
                     img = settings.images.find(i => i.span === 1 && i.allowMain !== false);
                     if (!img) {
                         result.push({ type: 'text', data: 'FIX', span: 1 });
@@ -1246,7 +1214,6 @@ window.updateMaskContent = function(evt) {
             return result;
         }
 
-        /** 依 asset 名稱（不含 .png）從 settings.images 找出對應圖檔，用於模擬輪帶 symbol_id_map */
         function getImageByAssetName(assetName) {
             if (!assetName || !settings.images || settings.images.length === 0) return null;
             const want = String(assetName).trim();
@@ -1259,10 +1226,6 @@ window.updateMaskContent = function(evt) {
             }) || null;
         }
 
-        /**
-         * 將模擬輪帶的 flat id 陣列轉成 visibleData（僅「上段/整顆」：anchor + placeholder）
-         * 「只露下 N 段」由 buildEmulatorPadAndVisible 用 padData + viewport 處理，不在此輸出 partOffset。
-         */
         function convertEmulatorIdsToVisibleData(ids, map) {
             if (!ids || !Array.isArray(ids) || ids.length === 0) return [];
             const result = [];
@@ -1292,10 +1255,6 @@ window.updateMaskContent = function(evt) {
             return result;
         }
 
-        /**
-         * 偵測可視區第一段是否為「長圖騰只露下 N 段」（第一 run 同 id、runLen < span）。
-         * 回傳 { isBottomSlice: boolean, id, runLen, span, img } 或 { isBottomSlice: false }。
-         */
         function detectBottomSlice(ids, map, reelIndex) {
             if (!ids || ids.length === 0) return { isBottomSlice: false };
             const id = ids[0];
@@ -1311,10 +1270,6 @@ window.updateMaskContent = function(evt) {
             return { isBottomSlice: false };
         }
 
-        /**
-         * 依 emulator 腳本組出該 reel 的 padData + visibleData；遇「只露下 N 段」時自動改 padData，用 viewport 裁切達成。
-         * 不額外提供 padData，由本函式自行判斷並組裝。
-         */
         function buildEmulatorPadAndVisible(reelIdx, scriptIndex, topPaddingCount, rows) {
             const em = settings.spinEmulator;
             if (!em || !em.symbol_id_map || !em.spin_emulator_data || em.spin_emulator_data.length === 0) {
@@ -1365,9 +1320,6 @@ window.updateMaskContent = function(evt) {
             return { padData, visibleData };
         }
 
-        /**
-         * 從模擬輪帶 JSON 組出 visibleData（無 bottom-slice 時單獨用；有 bottom-slice 時由 buildEmulatorPadAndVisible 一併回傳 pad+visible）。
-         */
         function buildVisibleDataFromEmulator(reelIdx, scriptIndex) {
             const em = settings.spinEmulator;
             if (!em || !em.symbol_id_map || !em.spin_emulator_data || em.spin_emulator_data.length === 0) return null;
@@ -1445,7 +1397,6 @@ window.updateMaskContent = function(evt) {
             div.dataset.kind = ''; div.dataset.span = '1'; div.dataset.symId = '';
             let baseZIndex = 1000 + (rowIndex * 10); div.style.zIndex = baseZIndex;
             
-            // [NEW] Empty Type Support
             if (dataObj && dataObj.type === 'empty') {
                 div.dataset.kind = 'empty';
                 return; 
@@ -1464,23 +1415,18 @@ window.updateMaskContent = function(evt) {
                 if (imgData.span > 1) {
                     img.classList.add('big'); div.classList.add('debug-box'); div.classList.add('is-long'); div.style.zIndex = baseZIndex + 5; 
                     const h = parseInt(document.getElementById('num-h').value); const g = parseInt(document.getElementById('num-gap').value);
-                    
                     const totalSpanHeight = (h * imgData.span) + (g * (imgData.span - 1));
                     div.style.setProperty('--debug-height', totalSpanHeight + 'px');
-                    
                     if(document.getElementById('native-size-toggle').checked) { 
-                        img.classList.add('force-native'); 
-                        img.style.height = ''; 
+                        img.classList.add('force-native'); img.style.height = ''; 
                     } else { 
-                        img.classList.remove('force-native'); 
-                        img.style.height = totalSpanHeight + 'px'; 
+                        img.classList.remove('force-native'); img.style.height = totalSpanHeight + 'px'; 
                     }
-
-                    img.style.top = (totalSpanHeight / 2) + 'px'; 
-                    img.style.marginTop = '0'; 
+                    img.style.top = (totalSpanHeight / 2) + 'px'; img.style.marginTop = '0'; 
                 }
                 div.appendChild(img);
                 div.dataset.kind = 'image'; div.dataset.span = String(imgData.span || 1); div.dataset.symId = String(imgData.id || imgData.name || imgData.url || '');
+                if (imgData.isSpine) { div.dataset.hasSpine = 'true'; }
             } else if (dataObj && dataObj.type === 'text') {
                  const span = document.createElement('span'); span.className = 'text-sym';
                  span.innerText = settings.symbols[Math.floor(Math.random()*settings.symbols.length)];
@@ -1495,23 +1441,16 @@ window.updateMaskContent = function(evt) {
             if(checked) { viewport.classList.add('active'); updateTopGrid(); } else { viewport.classList.remove('active'); }
         }
 
-        // [修正] 遮罩開關邏輯
         window.toggleMask = function(checked) {
             const container = document.getElementById('reels-container');
             const viewport = document.getElementById('viewport');
             
             if (checked && projectData.assets.mask) {
                 document.documentElement.style.setProperty('--mask-url', `url(${projectData.assets.mask})`);
-                
-                // [修改點] Class 加在 Viewport 上，而不是 Container
                 viewport.classList.add('mask-active'); 
-                
-                // Container 不需要 mask-active，它只需要負責位移
                 container.classList.remove('mask-active'); 
-
             } else {
                 viewport.classList.remove('mask-active');
-                
                 if(checked && !projectData.assets.mask) {
                     alert('請先上傳遮罩圖片 (PNG)');
                     document.getElementById('mask-toggle').checked = false;
@@ -1519,31 +1458,17 @@ window.updateMaskContent = function(evt) {
             }
         }
 
-        // [新增] 將 Viewport 尺寸同步為遮罩圖片尺寸
         window.syncMaskDimensions = function() {
             const row = document.getElementById('mask-sync-row');
             if(!row.dataset.w || !row.dataset.h) return;
-            
-            const w = parseInt(row.dataset.w);
-            const h = parseInt(row.dataset.h);
-            
-            // 取得原本控制 Mask W / Mask H 的輸入框
-            const mwInput = document.getElementById('num-mw');
-            const mhInput = document.getElementById('num-mh');
-            const mwRange = document.getElementById('range-mw'); // 假設 createControl 產生的 range id
-            const mhRange = document.getElementById('range-mh');
+            const w = parseInt(row.dataset.w); const h = parseInt(row.dataset.h);
+            const mwInput = document.getElementById('num-mw'); const mhInput = document.getElementById('num-mh');
+            const mwRange = document.getElementById('range-mw'); const mhRange = document.getElementById('range-mh');
 
             if(mwInput && mhInput) {
-                // 更新數值
-                mwInput.value = w;
-                mhInput.value = h;
-                if(mwRange) mwRange.value = w;
-                if(mhRange) mhRange.value = h;
-                
-                // 觸發 input 事件，讓原本的程式碼去更新 CSS 變數
-                mwInput.dispatchEvent(new Event('input'));
-                mhInput.dispatchEvent(new Event('input'));
-                
+                mwInput.value = w; mhInput.value = h;
+                if(mwRange) mwRange.value = w; if(mhRange) mhRange.value = h;
+                mwInput.dispatchEvent(new Event('input')); mhInput.dispatchEvent(new Event('input'));
                 alert(`可視範圍已調整為: ${w} x ${h}\n現在遮罩比例是 1:1 完美的！`);
             }
         }
@@ -1552,29 +1477,19 @@ window.updateMaskContent = function(evt) {
             if(!settings.topReel.active) return;
             const strip = document.getElementById('top-strip');
             const viewport = document.getElementById('top-viewport');
-            
             const w = parseInt(document.getElementById('num-w').value);
             const h = parseInt(document.getElementById('num-h').value);
             const g = parseInt(document.getElementById('num-gap').value);
-            
             const maskW = (w * settings.topReel.cols) + (g * (settings.topReel.cols - 1));
             const maskH = h;
-            viewport.style.width = maskW + 'px';
-            viewport.style.height = maskH + 'px';
-            
-            strip.innerHTML = '';
-            strip.style.transform = 'translateX(0)';
+            viewport.style.width = maskW + 'px'; viewport.style.height = maskH + 'px';
+            strip.innerHTML = ''; strip.style.transform = 'translateX(0)';
             
             const data = generateReelData(settings.topReel.cols, 0, true);
             projectData.runtime.topReelData = data; 
-            
             data.forEach((item, i) => {
-                const sym = document.createElement('div');
-                sym.className = 'symbol';
-                renderSymbol(sym, item, 0);
-                sym.style.width = w + 'px';
-                sym.style.height = h + 'px';
-                strip.appendChild(sym);
+                const sym = document.createElement('div'); sym.className = 'symbol'; renderSymbol(sym, item, 0);
+                sym.style.width = w + 'px'; sym.style.height = h + 'px'; strip.appendChild(sym);
             });
         }
 
@@ -1587,40 +1502,24 @@ window.updateMaskContent = function(evt) {
             const topPaddingCount = PAD_TOP; const bottomPaddingCount = PAD_BOTTOM;
             const totalRows = settings.rows + topPaddingCount + bottomPaddingCount;
     
-            // [修正] 確保偏移陣列存在
             if (!settings.reelOffsets) settings.reelOffsets = [];
-    
-            // [關鍵修正] 檢查是否有任何轉輪使用了偏移
             const hasAnyOffset = settings.reelOffsets.some(v => v !== 0);
             const viewport = document.getElementById('viewport');
     
-            // 如果有偏移，啟動「獨立遮罩模式」：Viewport 不裁切，改由 Reel 裁切
-            if (hasAnyOffset) {
-                viewport.style.overflow = 'visible';
-                viewport.classList.add('stagger-mode'); // 標記用
-            } else {
-                viewport.style.overflow = ''; // 恢復 CSS 預設 (hidden)
-                viewport.classList.remove('stagger-mode');
-            }
+            if (hasAnyOffset) { viewport.style.overflow = 'visible'; viewport.classList.add('stagger-mode'); } 
+            else { viewport.style.overflow = ''; viewport.classList.remove('stagger-mode'); }
 
             for(let i=0; i<settings.reels; i++) {
                 const reelData = generateReelData(totalRows, i+1);
                 const reel = document.createElement('div'); reel.className = 'reel'; reel.id = `reel-${i}`;
-        
-                // 應用 Y 軸偏移
                 const offset = settings.reelOffsets[i] || 0;
                 reel.style.transform = `translateY(${offset}px)`; 
         
-                // [關鍵修正] 若處於偏移模式，每一條轉輪要自己負責裁切內容 (變成獨立視窗)
                 if (hasAnyOffset) {
                     reel.style.overflow = 'hidden';
-                    // 補上邊框讓您知道轉輪範圍在哪 (可選)
-                    if(!document.getElementById('border-toggle').checked) {
-                       reel.style.border = '1px dashed rgba(255,255,255,0.3)';
-                    }
+                    if(!document.getElementById('border-toggle').checked) { reel.style.border = '1px dashed rgba(255,255,255,0.3)'; }
                 } else {
-                    reel.style.overflow = '';
-                    reel.style.border = '';
+                    reel.style.overflow = ''; reel.style.border = '';
                 }
   
                 const strip = document.createElement('div'); strip.className = 'reel-strip'; 
@@ -1649,35 +1548,25 @@ window.updateMaskContent = function(evt) {
              const minDuration = settings.spinDuration / rawSpeedVal;
              
              const currentVisibleData = projectData.runtime.topReelData && projectData.runtime.topReelData.length === topCols 
-                                        ? projectData.runtime.topReelData 
-                                        : generateReelData(topCols, 0, true);
+                                        ? projectData.runtime.topReelData : generateReelData(topCols, 0, true);
 
              const extraSyms = 15;
              const futureData = generateReelData(extraSyms, 0, true);
-             
              const newEndState = futureData.slice(extraSyms - topCols, extraSyms);
-             if(newEndState.length < topCols) {
-                 projectData.runtime.topReelData = futureData.slice(0, topCols);
-             } else {
-                 projectData.runtime.topReelData = newEndState;
-             }
+             if(newEndState.length < topCols) { projectData.runtime.topReelData = futureData.slice(0, topCols); } 
+             else { projectData.runtime.topReelData = newEndState; }
              
              const isRTL = settings.topReel.dir === 'rtl';
              
              if(isRTL) {
                  topStrip.innerHTML = '';
-                 [...currentVisibleData, ...futureData].forEach(item => {
-                    const sym = document.createElement('div'); sym.className = 'symbol'; renderSymbol(sym, item, 0); sym.style.width = w+'px'; sym.style.height = h+'px'; topStrip.appendChild(sym);
-                 });
+                 [...currentVisibleData, ...futureData].forEach(item => { const sym = document.createElement('div'); sym.className = 'symbol'; renderSymbol(sym, item, 0); sym.style.width = w+'px'; sym.style.height = h+'px'; topStrip.appendChild(sym); });
                  topStrip.style.transition = 'none'; topStrip.style.transform = 'translateX(0px)'; topStrip.offsetHeight; 
-                 const slideAmt = futureData.length * (w + g);
-                 const spinDur = minDuration + 500;
+                 const slideAmt = futureData.length * (w + g); const spinDur = minDuration + 500;
                  setTimeout(() => { topStrip.style.transition = `transform ${spinDur}ms ease-out`; topStrip.style.transform = `translateX(-${slideAmt}px)`; }, 50);
              } else {
                  topStrip.innerHTML = '';
-                 [...futureData, ...currentVisibleData].forEach(item => {
-                    const sym = document.createElement('div'); sym.className = 'symbol'; renderSymbol(sym, item, 0); sym.style.width = w+'px'; sym.style.height = h+'px'; topStrip.appendChild(sym);
-                 });
+                 [...futureData, ...currentVisibleData].forEach(item => { const sym = document.createElement('div'); sym.className = 'symbol'; renderSymbol(sym, item, 0); sym.style.width = w+'px'; sym.style.height = h+'px'; topStrip.appendChild(sym); });
                  const startX = -(futureData.length * (w + g));
                  topStrip.style.transition = 'none'; topStrip.style.transform = `translateX(${startX}px)`; topStrip.offsetHeight;
                  const spinDur = minDuration + 500;
@@ -1693,19 +1582,10 @@ window.updateMaskContent = function(evt) {
              isSpinning = true;
              const spinBtn = document.getElementById('btn-spin'); spinBtn.disabled = true;
 
-             // --- [修正開始] ---
-             // 1. 取得使用者設定的「速度倍率」
              const rawSpeedVal = parseFloat(document.getElementById('num-speed').value) || 1.0;
-             
-             // 2. 定義「基礎速度」 (當倍率為 1.0 時，每秒跑多少像素)
-             // 建議值: 2500px/秒 (約每秒 20-25 個圖騰，這會讓速度感很夠)
              const BASE_SPEED_PPS = 2500; 
-             const currentVelocity = BASE_SPEED_PPS * rawSpeedVal; // 實際速率 (px/sec)
-
-             // 3. 取得使用者設定的「旋轉時間」 (毫秒)
-             // 不再去 "除以" 速度，而是直接使用使用者想要的時間長度
+             const currentVelocity = BASE_SPEED_PPS * rawSpeedVal; 
              const baseDurationMs = settings.spinDuration; 
-             // --- [修正結束] ---
 
              const safetyMs = Math.max(5000, baseDurationMs + 2000);
              const safetyTimer = setTimeout(() => {
@@ -1726,7 +1606,6 @@ window.updateMaskContent = function(evt) {
              const currentScriptIndex = emulator ? settings.emulatorScriptIndex : 0;
 
              let reelsDone = 0;
-             /** 供延伸使用：每次 Spin 的 padData / visibleData / spinData，可從 window.lastSpinReelData 取得 */
              const spinOutputForReels = [];
 
              reels.forEach((reel, idx) => {
@@ -1734,32 +1613,18 @@ window.updateMaskContent = function(evt) {
                 _clearStripBlurClones(strip);
                 const fragment = document.createDocumentFragment();
                 
-                // --- [修正邏輯] ---
-                // 計算這條輪子需要的總時間 (基礎時間 + 停輪間隔)
                 const reelDuration = baseDurationMs + (idx * settings.stopDelay);
-                
-                // 根據物理公式：距離 = 速度 x 時間
-                // 計算需要跑多少像素
                 const distancePx = currentVelocity * (reelDuration / 1000);
-                
-                // 將像素轉換為「需要多少個圖騰」
                 const unitHeight = h + g;
-                // 額外加一點緩衝 (rows * 2) 確保不會穿幫
                 const targetSymbolCount = Math.ceil(distancePx / unitHeight) + (rows * 2);
-                // ------------------
 
-                let newData;
-                let addedHeightUnits = 0;
+                let newData; let addedHeightUnits = 0;
 
-                // === FORCE COMPLETE LOGIC START ===
                 if (settings.forceComplete) {
                     let padData, visibleData;
                     if (emulator) {
                         const built = buildEmulatorPadAndVisible(idx, currentScriptIndex, topPaddingCount, rows);
-                        if (built) {
-                            padData = built.padData;
-                            visibleData = built.visibleData;
-                        }
+                        if (built) { padData = built.padData; visibleData = built.visibleData; }
                     }
                     if (!padData) padData = generateExactStack(topPaddingCount, idx + 1);
                     if (!visibleData || visibleData.length === 0) visibleData = generateExactStack(rows, idx + 1);
@@ -1772,18 +1637,12 @@ window.updateMaskContent = function(evt) {
                     newData = [...padData, ...visibleData, ...spinData];
                     newData.forEach(d => { if(d.type !== 'placeholder') addedHeightUnits += (d.span || 1); });
 
-                    spinOutputForReels.push({
-                        reelIndex: idx,
-                        padData: JSON.parse(JSON.stringify(padData)),
-                        visibleData: JSON.parse(JSON.stringify(visibleData)),
-                        spinData: JSON.parse(JSON.stringify(spinData))
-                    });
+                    spinOutputForReels.push({ reelIndex: idx, padData: JSON.parse(JSON.stringify(padData)), visibleData: JSON.parse(JSON.stringify(visibleData)), spinData: JSON.parse(JSON.stringify(spinData)) });
                 } else {
                     if (emulator) {
                         const built = buildEmulatorPadAndVisible(idx, currentScriptIndex, topPaddingCount, rows);
                         if (built) {
-                            const padData = built.padData;
-                            let visibleData = built.visibleData;
+                            const padData = built.padData; let visibleData = built.visibleData;
                             if (!visibleData || visibleData.length === 0) visibleData = generateReelData(rows, idx + 1);
                             const spinData = generateReelData(targetSymbolCount, idx + 1);
                             visibleData.forEach(d => { if(d.type === 'placeholder' && typeof d.anchorIndex === 'number') d.anchorIndex += padData.length; });
@@ -1791,12 +1650,7 @@ window.updateMaskContent = function(evt) {
                             spinData.forEach(d => { if(d.type === 'placeholder' && typeof d.anchorIndex === 'number') d.anchorIndex += offset; });
                             newData = [...padData, ...visibleData, ...spinData];
                             newData.forEach(d => { if(d.type !== 'placeholder') addedHeightUnits += (d.span || 1); });
-                            spinOutputForReels.push({
-                                reelIndex: idx,
-                                padData: JSON.parse(JSON.stringify(padData)),
-                                visibleData: JSON.parse(JSON.stringify(visibleData)),
-                                spinData: JSON.parse(JSON.stringify(spinData))
-                            });
+                            spinOutputForReels.push({ reelIndex: idx, padData: JSON.parse(JSON.stringify(padData)), visibleData: JSON.parse(JSON.stringify(visibleData)), spinData: JSON.parse(JSON.stringify(spinData)) });
                         } else {
                             const padData = generateReelData(topPaddingCount, idx + 1);
                             let visibleData = buildVisibleDataFromEmulator(idx, currentScriptIndex);
@@ -1807,12 +1661,7 @@ window.updateMaskContent = function(evt) {
                             spinData.forEach(d => { if(d.type === 'placeholder' && typeof d.anchorIndex === 'number') d.anchorIndex += offset; });
                             newData = [...padData, ...visibleData, ...spinData];
                             newData.forEach(d => { if(d.type !== 'placeholder') addedHeightUnits += (d.span || 1); });
-                            spinOutputForReels.push({
-                                reelIndex: idx,
-                                padData: JSON.parse(JSON.stringify(padData)),
-                                visibleData: JSON.parse(JSON.stringify(visibleData)),
-                                spinData: JSON.parse(JSON.stringify(spinData))
-                            });
+                            spinOutputForReels.push({ reelIndex: idx, padData: JSON.parse(JSON.stringify(padData)), visibleData: JSON.parse(JSON.stringify(visibleData)), spinData: JSON.parse(JSON.stringify(spinData)) });
                         }
                     } else {
                         newData = generateReelData(topPaddingCount + rows + targetSymbolCount, idx+1);
@@ -1820,29 +1669,20 @@ window.updateMaskContent = function(evt) {
                         const padData = newData.slice(0, topPaddingCount);
                         const visibleData = newData.slice(topPaddingCount, topPaddingCount + rows);
                         const spinData = newData.slice(topPaddingCount + rows);
-                        spinOutputForReels.push({
-                            reelIndex: idx,
-                            padData: JSON.parse(JSON.stringify(padData)),
-                            visibleData: JSON.parse(JSON.stringify(visibleData)),
-                            spinData: JSON.parse(JSON.stringify(spinData))
-                        });
+                        spinOutputForReels.push({ reelIndex: idx, padData: JSON.parse(JSON.stringify(padData)), visibleData: JSON.parse(JSON.stringify(visibleData)), spinData: JSON.parse(JSON.stringify(spinData)) });
                     }
                 }
-                // === FORCE COMPLETE LOGIC END ===
 
                 newData.forEach((item, i) => { const sym = document.createElement('div'); sym.className = 'symbol'; renderSymbol(sym, item, i); fragment.appendChild(sym); });
                 strip.prepend(fragment);
                 
                 const totalUnits = newData.length;
-
                 const addedHeight = totalUnits * (h + g);
                 const startY = -(addedHeight + (topPaddingCount * (h+g)));
                 strip.style.transition = 'none'; strip.style.transform = `translateY(${startY}px)`; strip.offsetHeight; 
-                
                 let targetY = -(topPaddingCount * (h + g));
                 
                 setTimeout(() => {
-                     // 使用計算出的 reelDuration 作為動畫時間
                      strip.style.transition = `transform ${reelDuration}ms ${easeCurve}`;
                      strip.style.transform = `translateY(${targetY}px)`;
                      _startStripBlurLoop(strip, rows);
@@ -1879,13 +1719,7 @@ window.updateMaskContent = function(evt) {
                  settings.emulatorScriptIndex = (settings.emulatorScriptIndex + 1) % emulator.spin_emulator_data.length;
                  updateEmulatorStatus();
              }
-
-             // 輸出至 window 與 console，供後續延伸使用
              window.lastSpinReelData = spinOutputForReels;
-             if (spinOutputForReels.length > 0) {
-                 console.log('[Spin 資料輸出] padData, visibleData, spinData 格式參考（可從 window.lastSpinReelData 取得）:', spinOutputForReels);
-                 console.log('[Spin 資料輸出] 單一項目格式說明: { type: "image"|"placeholder"|"text", data?: 圖檔設定, span: 格數, symId?, anchorIndex? }');
-             }
 
             function finalize() {
                  setTimeout(() => {
@@ -1902,8 +1736,6 @@ window.updateMaskContent = function(evt) {
             }
         }
 
-        // --- Fixed Single Cell Spin Logic (修復版 v2: 修正死格問題) ---
-        // --- Fixed Single Cell Spin Logic (Fix v3: 強制重置樣式 & 獨立計數) ---
         function performSingleCellSpin() { 
             if(isSpinning) return; 
             isSpinning = true;
@@ -1914,14 +1746,12 @@ window.updateMaskContent = function(evt) {
             const g = parseInt(document.getElementById('num-gap').value);
             const totalRows = settings.rows + PAD_TOP + PAD_BOTTOM;
             
-            // 讀取速度與計算距離
             const rawSpeedVal = parseFloat(document.getElementById('num-speed').value) || 1.0;
             const activeDuration = settings.spinDuration / rawSpeedVal;
             const speedPxPerSec = settings.spinSpeed || 1500; 
             const totalDistance = speedPxPerSec * (activeDuration / 1000);
             const unitHeight = h + g;
             
-            // 確保至少有足夠的過場圖，避免瞬間跳動
             let blurCount = Math.ceil(totalDistance / unitHeight);
             if(blurCount < 5) blurCount = 5; 
 
@@ -1936,29 +1766,21 @@ window.updateMaskContent = function(evt) {
             else if (easeType === 'elastic') { easeCurve = 'cubic-bezier(0.68, -0.55, 0.27, 1.55)'; } 
             else if (easeType === 'elasticEnd') { easeCurve = 'linear'; manualBounce = true; }
 
-            // 預先產生所有格子的結果
             const targets = [];
-            for(let r=0; r<settings.reels; r++) { 
-                targets.push(generateReelData(totalRows, r+1, false)); 
-            }
+            for(let r=0; r<settings.reels; r++) { targets.push(generateReelData(totalRows, r+1, false)); }
 
-            // [關鍵修正 1] 精確計算總共需要完成的動畫格數，避免計數器錯誤
             let totalCellsToAnim = 0;
             for(let c=0; c<settings.reels; c++) {
                 const strip = document.getElementById(`reel-${c}`).querySelector('.reel-strip');
-                for(let r=0; r<settings.rows; r++) {
-                    if(strip.children[PAD_TOP + r]) totalCellsToAnim++;
-                }
+                for(let r=0; r<settings.rows; r++) { if(strip.children[PAD_TOP + r]) totalCellsToAnim++; }
             }
             let cellsCompleted = 0;
 
-            // 開始迴圈
             for(let c=0; c<settings.reels; c++) {
                 const reel = document.getElementById(`reel-${c}`);
                 const strip = reel.querySelector('.reel-strip');
                 if(!strip) continue;
                 
-                // 清理多餘 DOM
                 while(strip.children.length > totalRows) { strip.removeChild(strip.lastChild); }
                 strip.style.transition = 'none'; strip.style.transform = `translateY(-${PAD_TOP * (h+g)}px)`;
 
@@ -1967,25 +1789,15 @@ window.updateMaskContent = function(evt) {
                     const cell = strip.children[dataIndex];
                     if(!cell) continue;
 
-                    // [關鍵修正 2] 絕對不要跳過任何格子，即使它是 Placeholder
-                    // 之前的 if(is-placeholder) continue 必須移除
-
                     const delay = (c * rhythm) + (r * (rhythm * 0.4)); 
 
                     setTimeout(() => {
                         let targetData = targets[c][dataIndex];
+                        if (Math.random() * 100 < settings.singleMissChance) { targetData = { type: 'empty' }; }
 
-                        // [機率判定] 這是獨立判定，不會受盤面現有數量影響
-                        if (Math.random() * 100 < settings.singleMissChance) {
-                            targetData = { type: 'empty' };
-                        }
-
-                        // [關鍵修正 3] 強制移除隱藏屬性
-                        // 如果這格原本是 Placeholder，它會有 opacity: 0。
-                        // 在開始動畫前，必須強制讓它「現形」，否則新的動畫會看不到。
                         cell.classList.remove('is-placeholder'); 
                         cell.style.opacity = '1';
-                        cell.style.zIndex = ''; // 重置層級，避免被蓋住
+                        cell.style.zIndex = ''; 
 
                         const currentHtml = cell.innerHTML;
                         cell.innerHTML = ''; 
@@ -1993,7 +1805,6 @@ window.updateMaskContent = function(evt) {
                         innerStrip.className = 'inner-spin-strip';
                         const fragment = document.createDocumentFragment();
 
-                        // 1. Target (目標 - 下)
                         const divTarget = document.createElement('div');
                         divTarget.className = 'symbol';
                         renderSymbol(divTarget, targetData, 0); 
@@ -2001,50 +1812,36 @@ window.updateMaskContent = function(evt) {
                         divTarget.style.height = targetH + 'px';
                         fragment.appendChild(divTarget);
 
-                        // 2. Blurs (動態模糊 - 中)
                         for(let b=0; b<blurCount; b++) {
                             const divBlur = document.createElement('div');
-                            divBlur.className = 'symbol';
-                            divBlur.style.height = h + 'px';
-                            
-                            // 只有當目標不是空缺時，才顯示模糊圖
+                            divBlur.className = 'symbol'; divBlur.style.height = h + 'px';
                             if (targetData.type !== 'empty') {
-                                // ▲▲▲ [修正] 改用 getWeightedImg 確保遵守轉輪規則 ▲▲▲
-                                // c 是 0-based index，函數需要 1-based，所以傳 c + 1
                                 const randImg = getWeightedImg(c + 1); 
-                                
                                 if(randImg) {
                                     const img = document.createElement('img');
-                                    img.src = randImg.url; img.className = 'main-img'; 
-                                    img.style.filter = 'url(#vertical-blur)'; 
+                                    img.src = randImg.url; img.className = 'main-img'; img.style.filter = 'url(#vertical-blur)'; 
                                     divBlur.appendChild(img);
                                 }
                             }
                             fragment.appendChild(divBlur);
                         }
                         
-                        // 3. Current (當前圖 - 上)
                         const divCurrent = document.createElement('div');
-                        divCurrent.className = 'symbol'; 
-                        divCurrent.style.height = h + 'px'; 
-                        divCurrent.innerHTML = currentHtml;
+                        divCurrent.className = 'symbol'; divCurrent.style.height = h + 'px'; divCurrent.innerHTML = currentHtml;
                         fragment.appendChild(divCurrent);
 
                         innerStrip.appendChild(fragment); cell.appendChild(innerStrip);
                         
-                        // 計算位移並執行動畫
                         const totalStripHeight = targetH + g + (blurCount * (h + g)); 
                         innerStrip.style.transform = `translateY(-${totalStripHeight}px)`; 
-                        innerStrip.offsetHeight; // Force reflow
+                        innerStrip.offsetHeight; 
                         
                         innerStrip.style.transition = `transform ${activeDuration}ms ${easeCurve}`;
                         innerStrip.style.transform = `translateY(0)`;
 
-                        // 動畫結束處理
                         setTimeout(() => {
                             if (manualBounce) {
-                                let bounceY = bounceDist; 
-                                let settleTime = 120; let settleCurve = 'ease-in';
+                                let bounceY = bounceDist; let settleTime = 120; let settleCurve = 'ease-in';
                                 if (easeType === 'bounceBack') { settleCurve = 'cubic-bezier(0.2, 0.6, 0.3, 1)'; } 
                                 else if (easeType === 'elasticEnd') { settleTime = 300; settleCurve = 'cubic-bezier(0.2, 0, 0.35, 1.5)'; }
 
@@ -2058,12 +1855,8 @@ window.updateMaskContent = function(evt) {
                             } else { finishCell(); }
 
                             function finishCell() {
-                                cell.innerHTML = ''; 
-                                renderSymbol(cell, targetData, r); 
-                                
-                                // [關鍵修正 4] 確保完成計數正確
-                                cellsCompleted++;
-                                if(cellsCompleted >= totalCellsToAnim) { handleSpinComplete(); }
+                                cell.innerHTML = ''; renderSymbol(cell, targetData, r); 
+                                cellsCompleted++; if(cellsCompleted >= totalCellsToAnim) { handleSpinComplete(); }
                             }
                         }, activeDuration);
                     }, delay);
@@ -2098,19 +1891,9 @@ window.updateMaskContent = function(evt) {
                     });
                     const exitTotalTime = (allSyms.length * 80) + dropOutDuration;
                     setTimeout(() => {
-                        // FIX v42.6: Split generation to ensure boundary integrity
-                        // 1. Generate Padding (Hidden Top)
                         const padData = generateExactStack(topPaddingCount, idx + 1);
-                        // 2. Generate Main (Visible)
                         const mainData = generateExactStack(rows, idx + 1);
-                        
-                        // Shift anchor indices in mainData because they are appended after padData
-                        mainData.forEach(d => {
-                            if(d.type === 'placeholder' && typeof d.anchorIndex === 'number') {
-                                d.anchorIndex += padData.length;
-                            }
-                        });
-                        
+                        mainData.forEach(d => { if(d.type === 'placeholder' && typeof d.anchorIndex === 'number') { d.anchorIndex += padData.length; }});
                         const newStackData = padData.concat(mainData);
                         
                         strip.innerHTML = ''; const fragment = document.createDocumentFragment();
@@ -2134,11 +1917,7 @@ window.updateMaskContent = function(evt) {
                             const delay = rIdx * 120; 
                             setTimeout(() => {
                                 const blurFade = Math.max(0, dropInDuration - 150);
-                                setTimeout(() => {
-                                    const blurs = sym.querySelectorAll('.blur-clone');
-                                    blurs.forEach(b => b.style.opacity = '0');
-                                    setTimeout(() => { blurs.forEach(b => b.remove()); }, 160);
-                                }, blurFade);
+                                setTimeout(() => { const blurs = sym.querySelectorAll('.blur-clone'); blurs.forEach(b => b.style.opacity = '0'); setTimeout(() => { blurs.forEach(b => b.remove()); }, 160); }, blurFade);
                                 sym.style.transition = `transform ${dropInDuration}ms linear, opacity 0.1s linear`; sym.style.transform = 'translateY(0)'; sym.style.opacity = '1'; 
                                 setTimeout(() => {
                                     sym.style.transition = `transform 100ms cubic-bezier(0.2, 0.6, 0.3, 1)`; sym.style.transform = `translateY(${-bounce}px)`;
@@ -2155,7 +1934,6 @@ window.updateMaskContent = function(evt) {
             });
         }
 
-        // --- Logic Restoration: Scatter Count ---
         function _countVisibleScatters() {
             let count = 0; const reels = document.querySelectorAll('.reel');
             reels.forEach(reel => {
@@ -2180,7 +1958,7 @@ window.updateMaskContent = function(evt) {
 
         function _resumeGameInterface() {
             isSpinning = false; document.getElementById('btn-spin').disabled = false;
-            _scheduleWinCheck(); // Restored win check
+            _scheduleWinCheck(); 
             document.querySelectorAll('.reel-strip').forEach(st => { _stopStripBlurLoop(st); _clearStripBlurClones(st); });
         }
         
@@ -2282,8 +2060,6 @@ window.updateMaskContent = function(evt) {
 
                 const fcEl = document.getElementById('force-complete-toggle');
                 if(fcEl) fcEl.checked = !!settings.forceComplete;
-
-                // Sync new toggles
                 const winCheckEl = document.getElementById('win-check-toggle');
                 if(winCheckEl) winCheckEl.checked = !!settings.enableWinCheck;
             }
@@ -2307,7 +2083,6 @@ window.updateMaskContent = function(evt) {
             createControl('ctrl-cascade-speed', '掉落速度 (毫秒/ms)', 'cascade-speed', 50, 2000, 10, 300, null);
             createControl('ctrl-cascade-bounce', '掉落回彈 (像素/px)', 'cascade-bounce', 0, 200, 1, 30, null);
             createControl('ctrl-fg-rounds', 'FG 總局數', 'fgCount', 1, 100, 1, 10, null);
-            
             createControl('ctrl-top-cols', '橫向格數 (Cols)', 'top-cols', 1, 10, 1, 4, null);
             createControl('ctrl-top-ox', 'X 偏移 (px)', 'top-ox', -1500, 1500, 1, 0, '--top-offset-x', true);
             createControl('ctrl-top-oy', 'Y 偏移 (px)', 'top-oy', -1500, 1500, 1, -150, '--top-offset-y', true);
@@ -2316,9 +2091,7 @@ window.updateMaskContent = function(evt) {
             const syncZoom = (v) => { zRange.value = v; zNum.value = v; document.documentElement.style.setProperty('--global-scale', v); };
             zRange.addEventListener('input', e => syncZoom(e.target.value)); zNum.addEventListener('input', e => syncZoom(e.target.value));
 
-            setupMotionBindings(); setupToggles(); setupImages(); setupSystem(); setupStageDrag(); setupZoomWheel();
-            setupFlowAssets();
-            
+            setupMotionBindings(); setupToggles(); setupImages(); setupSystem(); setupStageDrag(); setupZoomWheel(); setupFlowAssets();
             setTimeout(() => { ModeManager.init(); }, 500);
         });
 
@@ -2327,16 +2100,14 @@ window.updateMaskContent = function(evt) {
                 if(e.target.files[0]) {
                     if(projectData.assets.cutscene) _revokeBlobUrl(projectData.assets.cutscene);
                     const url = URL.createObjectURL(e.target.files[0]);
-                    projectData.assets.cutscene = url;
-                    document.getElementById('preview-cutscene').innerHTML = `<img src="${url}">`;
+                    projectData.assets.cutscene = url; document.getElementById('preview-cutscene').innerHTML = `<img src="${url}">`;
                 }
             });
             document.getElementById('file-win').addEventListener('change', e => {
                 if(e.target.files[0]) {
                     if(projectData.assets.winPanel) _revokeBlobUrl(projectData.assets.winPanel);
                     const url = URL.createObjectURL(e.target.files[0]);
-                    projectData.assets.winPanel = url;
-                    document.getElementById('preview-win').innerHTML = `<img src="${url}">`;
+                    projectData.assets.winPanel = url; document.getElementById('preview-win').innerHTML = `<img src="${url}">`;
                 }
             });
             document.getElementById('file-mask').addEventListener('change', e => {
@@ -2344,33 +2115,18 @@ window.updateMaskContent = function(evt) {
                     if(projectData.assets.mask) _revokeBlobUrl(projectData.assets.mask);
                     const url = URL.createObjectURL(e.target.files[0]);
                     projectData.assets.mask = url;
-                    
-                    // 1. 預覽圖片
                     const pBox = document.getElementById('preview-mask');
                     pBox.innerHTML = `<img src="${url}" style="max-height:100%; object-fit:contain;">`;
-                    
-                    // 2. 讀取原始尺寸
                     const tempImg = new Image();
                     tempImg.onload = function() {
-                        // 儲存尺寸到 DOM 元素上，供按鈕讀取
                         const btnRow = document.getElementById('mask-sync-row');
                         const infoSpan = document.getElementById('mask-dims');
-                        
-                        btnRow.dataset.w = this.naturalWidth;
-                        btnRow.dataset.h = this.naturalHeight;
-                        
+                        btnRow.dataset.w = this.naturalWidth; btnRow.dataset.h = this.naturalHeight;
                         infoSpan.innerText = `${this.naturalWidth} x ${this.naturalHeight}`;
-                        btnRow.style.display = 'block'; // 顯示同步按鈕
-
-                        // 自動詢問是否同步 (選用，避免變形)
-                        console.log(`Mask loaded: ${this.naturalWidth}x${this.naturalHeight}`);
+                        btnRow.style.display = 'block'; 
                     };
                     tempImg.src = url;
-
-                    // 3. 如果目前已啟用，刷新顯示
-                    if(document.getElementById('mask-toggle').checked) {
-                        toggleMask(true);
-                    }
+                    if(document.getElementById('mask-toggle').checked) toggleMask(true);
                 }
             });
         }
@@ -2391,20 +2147,10 @@ window.updateMaskContent = function(evt) {
         
         function setupMotionBindings() {
             document.getElementById('ease-type').addEventListener('change', e => { settings.ease = e.target.value; });
-            document.getElementById('anim-mode').addEventListener('change', e => { 
-                settings.mode = e.target.value; 
-                updateClipMode();
-            });
+            document.getElementById('anim-mode').addEventListener('change', e => { settings.mode = e.target.value; updateClipMode(); });
             document.getElementById('btn-spin').addEventListener('click', () => { if(settings.mode === 'cascade') performCascade(); else spin(); });
-            
-            document.getElementById('force-complete-toggle').addEventListener('change', e => {
-                settings.forceComplete = e.target.checked;
-            });
-
-            // [NEW] Bindings
-            document.getElementById('win-check-toggle').addEventListener('change', e => {
-                settings.enableWinCheck = e.target.checked;
-            });
+            document.getElementById('force-complete-toggle').addEventListener('change', e => { settings.forceComplete = e.target.checked; });
+            document.getElementById('win-check-toggle').addEventListener('change', e => { settings.enableWinCheck = e.target.checked; });
 
             const emulatorInput = document.getElementById('file-emulator-json');
             if (emulatorInput) {
@@ -2416,29 +2162,17 @@ window.updateMaskContent = function(evt) {
                             const json = JSON.parse(t);
                             if (json && typeof json.symbol_id_map === 'object' && Array.isArray(json.spin_emulator_data)) {
                                 settings.spinEmulator = { symbol_id_map: json.symbol_id_map, spin_emulator_data: json.spin_emulator_data };
-                                settings.emulatorScriptIndex = 0;
-                                updateEmulatorStatus();
-                            } else {
-                                alert('JSON 格式需包含 symbol_id_map (物件) 與 spin_emulator_data (陣列)');
-                            }
-                        } catch (err) {
-                            console.error(err);
-                            alert('JSON 解析錯誤');
-                        }
+                                settings.emulatorScriptIndex = 0; updateEmulatorStatus();
+                            } else { alert('JSON 格式需包含 symbol_id_map 與 spin_emulator_data'); }
+                        } catch (err) { alert('JSON 解析錯誤'); }
                     }).finally(() => { emulatorInput.value = ''; });
                 });
             }
             updateEmulatorStatus();
             
-            const missRange = document.getElementById('single-miss-rate');
-            const missNum = document.getElementById('num-single-miss-rate');
-            const syncMiss = (v) => { 
-                missRange.value = v; 
-                missNum.value = v; 
-                settings.singleMissChance = parseInt(v); 
-            };
-            missRange.addEventListener('input', e => syncMiss(e.target.value));
-            missNum.addEventListener('input', e => syncMiss(e.target.value));
+            const missRange = document.getElementById('single-miss-rate'); const missNum = document.getElementById('num-single-miss-rate');
+            const syncMiss = (v) => { missRange.value = v; missNum.value = v; settings.singleMissChance = parseInt(v); };
+            missRange.addEventListener('input', e => syncMiss(e.target.value)); missNum.addEventListener('input', e => syncMiss(e.target.value));
         }
         
         function setupToggles() {
@@ -2448,10 +2182,7 @@ window.updateMaskContent = function(evt) {
                      const cls = id.replace('-toggle','').replace('hide-bg','hide-bg').replace('native-size','native').replace('ui-front','front').replace('border','noborder');
                      const tgt = id.includes('ui') ? document.getElementById('ui-layer') : (id.includes('border') ? document.getElementById('viewport') : document.getElementById('reels-container'));
                      if(e.target.checked) tgt.classList.add(cls); else tgt.classList.remove(cls);
-                     if(id.includes('border')) { 
-                         const topV = document.getElementById('top-viewport');
-                         if(e.target.checked) topV.classList.add('noborder'); else topV.classList.remove('noborder');
-                     }
+                     if(id.includes('border')) { const topV = document.getElementById('top-viewport'); if(e.target.checked) topV.classList.add('noborder'); else topV.classList.remove('noborder'); }
                      if(id.includes('native')) updateGrid();
                  });
              });
@@ -2467,7 +2198,38 @@ window.updateMaskContent = function(evt) {
                     const el = document.getElementById('ui-layer'); el.src = url; el.style.display = 'block';
                 }
             }); 
+            // [Spine 讀取邏輯]
+            document.getElementById('file-spine').addEventListener('change', async (e) => {
+                const files = Array.from(e.target.files);
+                if (files.length === 0) return;
+                const jsonFile = files.find(f => f.name.endsWith('.json') || f.name.endsWith('.skel'));
+                const atlasFile = files.find(f => f.name.endsWith('.atlas') || f.name.endsWith('.txt'));
+                const pngFiles = files.filter(f => f.name.endsWith('.png'));
+                if (!jsonFile || !atlasFile || pngFiles.length === 0) {
+                    alert('Spine 檔案不齊全！\n請按住 Ctrl (或全選)，「同時選取」 .json, .atlas 與 .png 檔案。');
+                    e.target.value = ''; return;
+                }
+                const rawDataURIs = {};
+                rawDataURIs[jsonFile.name] = URL.createObjectURL(jsonFile);
+                rawDataURIs[atlasFile.name] = URL.createObjectURL(atlasFile);
+                let staticPngUrl = '';
+                for (let p of pngFiles) {
+                    const url = URL.createObjectURL(p);
+                    rawDataURIs[p.name] = url;
+                    if (!staticPngUrl) staticPngUrl = url; 
+                }
+                const uid = 'spine_' + Date.now();
+                const baseName = jsonFile.name.replace(/\.[^/.]+$/, "");
+                settings.images.push({
+                    id: uid, name: baseName + ' (Spine)', url: staticPngUrl, 
+                    weight: 50, span: 1, reelsSpec: '', allowMain: true, allowTop: true, isSpine: true,
+                    spineData: { jsonName: jsonFile.name, atlasName: atlasFile.name, rawDataURIs: rawDataURIs }
+                });
+                settings.images[settings.images.length - 1]._reelPred = _buildReelPredicate('');
+                renderImgList(); updateGrid(); e.target.value = '';
+            });
         }
+
         function setupSystem() { document.getElementById('btn-reset-all').addEventListener('click', () => { if(confirm('重置設定？')) { localStorage.removeItem('slotSimConfig'); location.reload(); }}); initSaveLoad(); }
         
         function handleImages(e, reset) { 
@@ -2498,18 +2260,15 @@ window.updateMaskContent = function(evt) {
                         </div>
                         <div style="display:flex; justify-content:space-between; font-size:11px; color:#888;"><span>權重: <b id="disp-w-${img.id}">${img.weight}</b></span></div>
                         <input type="range" min="1" max="100" value="${img.weight}" oninput="updateWeight(${idx}, this.value)">
-                        
                         <div style="margin-top:4px;">
                             <input type="text" class="reels-input" placeholder="指定卷軸 (例: 1,3,5 或 2-4)" value="${img.reelsSpec || ''}" onchange="updateReelsSpec(${idx}, this.value)">
                             <div class="reels-hint">留空=全卷軸。可用逗號或連字號。</div>
                         </div>
-
                         <div style="display:flex; gap:5px; margin-top:5px; align-items:center;">
                             <select class="span-select" onchange="updateSpan(${idx}, this.value)">${[1,2,3,4,5].map(n => `<option value="${n}" ${img.span==n?'selected':''}>佔 ${n} 格</option>`).join('')}</select>
                             <label style="font-size:10px;color:#aaa;"><input type="checkbox" ${img.allowMain !== false ?'checked':''} onchange="updateScope(${idx}, 'main', this.checked)"> 主盤</label>
                             <label style="font-size:10px;color:#4fc3f7;"><input type="checkbox" ${img.allowTop !== false ?'checked':''} onchange="updateScope(${idx}, 'top', this.checked)"> 橫轉</label>
                         </div>
-                        
                         <div style="display:flex; gap:10px; margin-top:6px;">
                             <label style="font-size:12px; display:flex; align-items:center;"><input type="checkbox" ${img.isWild?'checked':''} onchange="updateWild(${idx}, this.checked)"> WILD</label>
                             <label style="font-size:12px; display:flex; align-items:center; color:#ffb74d;"><input type="checkbox" ${img.isScatter?'checked':''} onchange="updateScatter(${idx}, this.checked)"> SCATTER</label>
@@ -2520,31 +2279,15 @@ window.updateMaskContent = function(evt) {
         }
 
         window.updateWeight = (idx, val) => { settings.images[idx].weight = parseInt(val); document.getElementById(`disp-w-${settings.images[idx].id}`).innerText = val; };
-        
-        // [RESTORED] Update Helper
-        window.updateReelsSpec = (idx, val) => { 
-            const img = settings.images[idx]; 
-            if (!img) return; 
-            img.reelsSpec = val; 
-            img._reelPred = _buildReelPredicate(val); // 立即重新建立檢查規則
-            updateGrid(); // 重繪畫面以應用變更
-        };
-
-        window.updateSpan = (idx, val) => { settings.images[idx].span = parseInt(val); updateGrid(); };
+        window.updateReelsSpec = (idx, val) => { const img = settings.images[idx]; if (!img) return; img.reelsSpec = val; img._reelPred = _buildReelPredicate(val); updateGrid(); };
         window.updateSpan = (idx, val) => { settings.images[idx].span = parseInt(val); updateGrid(); };
         window.updateWild = (idx, checked) => { const img = settings.images[idx]; if (!img) return; img.isWild = !!checked; updateGrid(); };
         window.updateScatter = (idx, checked) => { const img = settings.images[idx]; if (!img) return; img.isScatter = !!checked; updateGrid(); };
-        window.updateScope = (idx, type, checked) => { 
-            const img = settings.images[idx]; if(!img) return; 
-            if(type === 'main') img.allowMain = checked; 
-            if(type === 'top') img.allowTop = checked;
-            updateGrid(); 
-        };
-        
+        window.updateScope = (idx, type, checked) => { const img = settings.images[idx]; if(!img) return; if(type === 'main') img.allowMain = checked; if(type === 'top') img.allowTop = checked; updateGrid(); };
         window.delImg = (idx) => { if(confirm('刪除？')) { const it = settings.images[idx]; if(it) _revokeBlobUrl(it.url); settings.images.splice(idx, 1); renderImgList(); updateGrid(); }};
-        let replaceIdx = -1; const repInput = document.createElement('input'); repInput.type = 'file'; repInput.accept = 'image/*'; repInput.style.display = 'none'; document.body.appendChild(repInput); repInput.onchange = (e) => {
-            if(e.target.files[0] && replaceIdx > -1) { const old = settings.images[replaceIdx]; if(old) _revokeBlobUrl(old.url); settings.images[replaceIdx].url = URL.createObjectURL(e.target.files[0]); settings.images[replaceIdx].name = e.target.files[0].name; renderImgList(); updateGrid(); } repInput.value = '';
-        }; window.replaceImg = (idx) => { replaceIdx = idx; repInput.click(); };
+        let replaceIdx = -1; const repInput = document.createElement('input'); repInput.type = 'file'; repInput.accept = 'image/*'; repInput.style.display = 'none'; document.body.appendChild(repInput); 
+        repInput.onchange = (e) => { if(e.target.files[0] && replaceIdx > -1) { const old = settings.images[replaceIdx]; if(old) _revokeBlobUrl(old.url); settings.images[replaceIdx].url = URL.createObjectURL(e.target.files[0]); settings.images[replaceIdx].name = e.target.files[0].name; renderImgList(); updateGrid(); } repInput.value = ''; }; 
+        window.replaceImg = (idx) => { replaceIdx = idx; repInput.click(); };
         
         function initSaveLoad() {
             const buildConfig = () => {
@@ -2553,11 +2296,10 @@ window.updateMaskContent = function(evt) {
                 config.params['ease-type'] = document.getElementById('ease-type').value; config.params['anim-mode'] = document.getElementById('anim-mode').value;
                 config.params['top-dir'] = document.getElementById('top-reel-dir').value;
                 config.params['force-complete'] = settings.forceComplete;
-                config.params['single-miss-rate'] = settings.singleMissChance; // Save rate
-                // [NEW] Save Reel Offsets
+                config.params['single-miss-rate'] = settings.singleMissChance; 
                 config.params['reel-offsets'] = settings.reelOffsets;
                 config.toggles.topActive = settings.topReel.active;
-                config.toggles.winCheck = settings.enableWinCheck; // Save toggle
+                config.toggles.winCheck = settings.enableWinCheck; 
                 config.toggles.maskActive = document.getElementById('mask-toggle').checked;
                 config.toggles.bg  = document.getElementById('hide-bg-toggle').checked; config.toggles.nat = document.getElementById('native-size-toggle').checked;
                 config.toggles.ui  = document.getElementById('ui-front-toggle').checked; config.toggles.brd = document.getElementById('border-toggle').checked;
@@ -2584,40 +2326,23 @@ window.updateMaskContent = function(evt) {
                 return cfg;
             };
 
-            document.getElementById('btn-save').onclick = async () => { 
-                try {
-                    const cfg = buildConfig(); 
-                    localStorage.setItem('slotSimConfig', JSON.stringify(cfg)); 
-                    alert('設定已暫存 (不含圖片)'); 
-                } catch(e) { alert('暫存失敗 (LocalStorage 配額不足)'); }
-            };
-
+            document.getElementById('btn-save').onclick = async () => { try { const cfg = buildConfig(); localStorage.setItem('slotSimConfig', JSON.stringify(cfg)); alert('設定已暫存 (不含圖片)'); } catch(e) { alert('暫存失敗 (LocalStorage 配額不足)'); } };
             document.getElementById('btn-load').onclick = () => { const raw = localStorage.getItem('slotSimConfig'); if(raw) applyConfig(JSON.parse(raw)); else alert('無存檔'); };
             
             document.getElementById('btn-export').onclick = async () => { 
                 const btn = document.getElementById('btn-export'); const oldText = btn.innerText; btn.innerText = '打包中...'; btn.disabled = true;
                 try {
-                    let cfg = buildConfig();
-                    cfg = await _packData(cfg);
-                    
+                    let cfg = buildConfig(); cfg = await _packData(cfg);
                     if ('showSaveFilePicker' in window) {
                         try {
-                            const handle = await window.showSaveFilePicker({
-                                suggestedName: 'slot_project_pack.json',
-                                types: [{ description: 'Slot Project JSON', accept: {'application/json': ['.json']} }]
-                            });
-                            const writable = await handle.createWritable();
-                            await writable.write(JSON.stringify(cfg));
-                            await writable.close();
-                            btn.innerText = oldText; btn.disabled = false;
-                            return; 
+                            const handle = await window.showSaveFilePicker({ suggestedName: 'slot_project_pack.json', types: [{ description: 'Slot Project JSON', accept: {'application/json': ['.json']} }] });
+                            const writable = await handle.createWritable(); await writable.write(JSON.stringify(cfg)); await writable.close();
+                            btn.innerText = oldText; btn.disabled = false; return; 
                         } catch (err) { if (err.name === 'AbortError') { btn.innerText = oldText; btn.disabled = false; return; } }
                     }
-
                     const blob = new Blob([JSON.stringify(cfg)], {type: 'application/json'}); 
                     const url = URL.createObjectURL(blob); const a = document.createElement('a'); a.href = url; a.download = 'slot_project_pack.json'; a.click(); 
                     setTimeout(() => _revokeBlobUrl(url), 1000);
-
                 } catch(e) { console.error(e); alert('打包失敗'); }
                 btn.innerText = oldText; btn.disabled = false;
             };
@@ -2627,54 +2352,25 @@ window.updateMaskContent = function(evt) {
 
         function applyConfig(d) { 
             if(d.params) { 
-                for(let key in d.params) { 
-                    const el = document.getElementById(key); 
-                    if(el) { el.value = d.params[key]; el.dispatchEvent(new Event('input')); } 
-                } 
+                for(let key in d.params) { const el = document.getElementById(key); if(el) { el.value = d.params[key]; el.dispatchEvent(new Event('input')); } } 
                 if(d.params['ease-type']) { const el = document.getElementById('ease-type'); el.value = d.params['ease-type']; el.dispatchEvent(new Event('change')); } 
                 if(d.params['anim-mode']) { const el = document.getElementById('anim-mode'); el.value = d.params['anim-mode']; el.dispatchEvent(new Event('change')); } 
-                if(d.params['top-dir']) { 
-                    document.getElementById('top-reel-dir').value = d.params['top-dir']; 
-                    settings.topReel.dir = d.params['top-dir'];
+                if(d.params['top-dir']) { document.getElementById('top-reel-dir').value = d.params['top-dir']; settings.topReel.dir = d.params['top-dir']; }
+                if(d.params['force-complete'] !== undefined) { settings.forceComplete = d.params['force-complete']; const el = document.getElementById('force-complete-toggle'); if(el) el.checked = settings.forceComplete; }
+                if(d.params['single-miss-rate'] !== undefined) { settings.singleMissChance = parseInt(d.params['single-miss-rate']); }
+                if (d.params['reel-offsets'] && Array.isArray(d.params['reel-offsets'])) { settings.reelOffsets = d.params['reel-offsets']; renderReelOffsetsUI(); }
+                if(d.params['mask-ox'] !== undefined) {
+                    document.getElementById('mask-ox').value = d.params['mask-ox']; document.getElementById('num-mask-ox').value = d.params['mask-ox'];
+                    settings.maskContentX = d.params['mask-ox'];
+                    window.updateMaskContent();
                 }
-                if(d.params['force-complete'] !== undefined) {
-                    settings.forceComplete = d.params['force-complete'];
-                    const el = document.getElementById('force-complete-toggle');
-                    if(el) el.checked = settings.forceComplete;
-                }
-                // Load rate
-                if(d.params['single-miss-rate'] !== undefined) {
-                    settings.singleMissChance = parseInt(d.params['single-miss-rate']);
-                }
-                // [NEW] Load Reel Offsets
-                if (d.params['reel-offsets'] && Array.isArray(d.params['reel-offsets'])) {
-                    settings.reelOffsets = d.params['reel-offsets'];
-                    renderReelOffsetsUI(); // 載入後更新 UI
-                }
-                // [新增] 還原內容微調
-            // [新增] 還原內容微調
-            // [新增] 還原內容微調
-            if(d.params['mask-ox'] !== undefined) {
-                document.getElementById('mask-ox').value = d.params['mask-ox'];
-                document.getElementById('num-mask-ox').value = d.params['mask-ox'];
-                settings.maskContentX = d.params['mask-ox'];
-                window.updateMaskContent(); // 呼叫上方的更新函數即可
-            }
-        } // <--- 就是少了這個大括號！用來關閉 if(d.params)
+            } 
             if(d.toggles) { 
                 const setChk = (id, v) => { const el = document.getElementById(id); if(el) { el.checked = v; el.dispatchEvent(new Event('change')); } }; 
                 setChk('hide-bg-toggle', d.toggles.bg); setChk('native-size-toggle', d.toggles.nat); setChk('ui-front-toggle', d.toggles.ui); setChk('border-toggle', d.toggles.brd); 
-                if(d.toggles.topActive !== undefined) {
-                    document.getElementById('top-reel-toggle').checked = d.toggles.topActive;
-                    toggleTopReel(d.toggles.topActive);
-                }
-                // Load toggle
-                if(d.toggles.winCheck !== undefined) {
-                    settings.enableWinCheck = d.toggles.winCheck;
-                }
-                if(d.toggles.maskActive !== undefined) {
-                    document.getElementById('mask-toggle').checked = d.toggles.maskActive;
-                }
+                if(d.toggles.topActive !== undefined) { document.getElementById('top-reel-toggle').checked = d.toggles.topActive; toggleTopReel(d.toggles.topActive); }
+                if(d.toggles.winCheck !== undefined) { settings.enableWinCheck = d.toggles.winCheck; }
+                if(d.toggles.maskActive !== undefined) { document.getElementById('mask-toggle').checked = d.toggles.maskActive; }
             }
             if(d.pack) {
                 _revokeAllSymbolImageUrls(); settings.images = [];
@@ -2697,23 +2393,9 @@ window.updateMaskContent = function(evt) {
                         }
                     });
                 }
-                // 新增：還原遮罩圖片
-                if(d.pack.assets.mask) {
-                     const url = base64ToBlobUrl(d.pack.assets.mask);
-                     if(url) { 
-                         projectData.assets.mask = url; 
-                         document.getElementById('preview-mask').innerHTML = `<img src="${url}" style="max-height:100%;">`; 
-                     }
-                }
-                
-                if(d.pack.assets.cutscene) {
-                     const url = base64ToBlobUrl(d.pack.assets.cutscene);
-                     if(url) { projectData.assets.cutscene = url; document.getElementById('preview-cutscene').innerHTML = `<img src="${url}">`; }
-                }
-                if(d.pack.assets.winPanel) {
-                     const url = base64ToBlobUrl(d.pack.assets.winPanel);
-                     if(url) { projectData.assets.winPanel = url; document.getElementById('preview-win').innerHTML = `<img src="${url}">`; }
-                }
+                if(d.pack.assets.mask) { const url = base64ToBlobUrl(d.pack.assets.mask); if(url) { projectData.assets.mask = url; document.getElementById('preview-mask').innerHTML = `<img src="${url}" style="max-height:100%;">`; } }
+                if(d.pack.assets.cutscene) { const url = base64ToBlobUrl(d.pack.assets.cutscene); if(url) { projectData.assets.cutscene = url; document.getElementById('preview-cutscene').innerHTML = `<img src="${url}">`; } }
+                if(d.pack.assets.winPanel) { const url = base64ToBlobUrl(d.pack.assets.winPanel); if(url) { projectData.assets.winPanel = url; document.getElementById('preview-win').innerHTML = `<img src="${url}">`; } }
                 if(d.pack.bg.base) projectData.modes.base.bgImage = base64ToBlobUrl(d.pack.bg.base);
                 if(d.pack.bg.fg) projectData.modes.fg.bgImage = base64ToBlobUrl(d.pack.bg.fg);
                 
@@ -2722,206 +2404,71 @@ window.updateMaskContent = function(evt) {
                 if (currentBg) { el.src = currentBg; el.style.display = 'block'; } else { el.style.display = 'none'; el.src = ''; }
                 renderImgList(); updateGrid();
             }
-
             if(ModeManager.isInitialized) { projectData.modes[projectData.currentModeId].settings = JSON.parse(JSON.stringify(settings)); }
-            // Ensure UI Sync after loading
-            ModeManager.syncUIFromSettings();
-            toggleMask(document.getElementById('mask-toggle').checked);
+            ModeManager.syncUIFromSettings(); toggleMask(document.getElementById('mask-toggle').checked);
             alert('專案載入完成 (含圖片資源)'); 
         }
-            /**
-             * 🎥 Auto Recorder Module v4.0 (Pure / Manual Mode)
-             * 特性：完全不介入介面佈局。不縮放、不位移、不隱藏側欄。
-             * 您調整好什麼畫面，它就錄製什麼畫面。
-             */
-            const AutoRecorder = {
-                recorder: null,
-                chunks: [],
-                stream: null,
-                taskCount: 0,
-                currentCount: 0,
-                isRecording: false,
 
-                // 啟動任務入口
+            const AutoRecorder = {
+                recorder: null, chunks: [], stream: null, taskCount: 0, currentCount: 0, isRecording: false,
                 startTask: async function(count) {
                     if (this.isRecording || isSpinning) return alert('正在運作中...');
-        
-                    // 再次確認意圖，避免誤觸
-                    if (!confirm(`準備開始錄製 ${count} 手？\n\n(請確認您已經調整好畫面位置與大小，程式將直接錄製您看到的畫面)`)) {
-                        return;
-                    }
-
-                    this.taskCount = count;
-                    this.currentCount = 0;
-
+                    if (!confirm(`準備開始錄製 ${count} 手？\n\n(請確認您已經調整好畫面位置與大小，程式將直接錄製您看到的畫面)`)) return;
+                    this.taskCount = count; this.currentCount = 0;
                     try {
-                        // 1. 請求螢幕錄製權限
-                        this.stream = await navigator.mediaDevices.getDisplayMedia({
-                            video: {
-                                cursor: "always",
-                                frameRate: 60,
-                                displaySurface: "browser" // 建議選擇 Chrome 分頁
-                            },
-                            audio: false
-                        });
-
-                        // 2. 初始化錄影器
+                        this.stream = await navigator.mediaDevices.getDisplayMedia({ video: { cursor: "always", frameRate: 60, displaySurface: "browser" }, audio: false });
                         this.recorder = new MediaRecorder(this.stream, { mimeType: 'video/webm; codecs=vp9' });
                         this.chunks = [];
-            
-                        this.recorder.ondataavailable = (e) => {
-                            if (e.data.size > 0) this.chunks.push(e.data);
-                        };
-
-                        this.recorder.onstop = () => {
-                            this.saveVideo();
-                            this.cleanup();
-                        };
-
-                        // 3. 開始錄影
-                        this.recorder.start();
-                        this.isRecording = true;
-                        this.updateStatus(`錄影中...`);
-
-                        // 4. 開始執行自動 Spin
-                        // 稍微等待 1 秒讓錄影訊號穩定
-                         setTimeout(() => {
-                            this.runLoop();
-                        }, 1000);
-
-                    } catch (err) {
-                    console.error("錄影啟動失敗:", err);
-                        // 用戶取消或權限不足
-                        this.cleanup();
-                    }
+                        this.recorder.ondataavailable = (e) => { if (e.data.size > 0) this.chunks.push(e.data); };
+                        this.recorder.onstop = () => { this.saveVideo(); this.cleanup(); };
+                        this.recorder.start(); this.isRecording = true; this.updateStatus(`錄影中...`);
+                        setTimeout(() => { this.runLoop(); }, 1000);
+                    } catch (err) { console.error("錄影啟動失敗:", err); this.cleanup(); }
                 },
-
-                // 執行迴圈 (負責自動按 Spin)
                 runLoop: async function() {
                     if (!this.isRecording) return;
-
-                    if (this.currentCount >= this.taskCount) {
-                        this.finishTask();
-                        return;
-                    }
-
-                    this.currentCount++;
-                    this.updateStatus(`REC: ${this.currentCount}/${this.taskCount} (Spinning...)`);
-
-                    // 觸發 Spin (根據目前模式)
-                    if (settings.mode === 'cascade') {
-                        performCascade();
-                    } else if (settings.mode === 'single') {
-                        performSingleCellSpin();
-                    } else {
-                        spin();
-                    }
-
-                    // 監控 Spin 狀態
+                    if (this.currentCount >= this.taskCount) { this.finishTask(); return; }
+                    this.currentCount++; this.updateStatus(`REC: ${this.currentCount}/${this.taskCount} (Spinning...)`);
+                    if (settings.mode === 'cascade') { performCascade(); } else if (settings.mode === 'single') { performSingleCellSpin(); } else { spin(); }
                     const checkInterval = setInterval(() => {
-                        if (!isSpinning) {
-                            clearInterval(checkInterval);
-                            this.updateStatus(`REC: ${this.currentCount}/${this.taskCount} (Waiting...)`);
-                
-                            // 每手間隔 (可在此調整秒數)
-                            setTimeout(() => {
-                                this.runLoop();
-                            }, 1000); 
-                        }
+                        if (!isSpinning) { clearInterval(checkInterval); this.updateStatus(`REC: ${this.currentCount}/${this.taskCount} (Waiting...)`); setTimeout(() => { this.runLoop(); }, 1000); }
                     }, 200);
                 },
-
-                finishTask: function() {
-                    this.updateStatus("錄製完成，正在儲存...");
-                    if (this.recorder && this.recorder.state !== 'inactive') {
-                        this.recorder.stop();
-                    }
-                },
-
+                finishTask: function() { this.updateStatus("錄製完成，正在儲存..."); if (this.recorder && this.recorder.state !== 'inactive') { this.recorder.stop(); } },
                 saveVideo: function() {
                     if (this.chunks.length === 0) return;
                     const blob = new Blob(this.chunks, { type: 'video/webm' });
-                    const url = URL.createObjectURL(blob);
-                    const a = document.createElement('a');
-                    a.href = url;
+                    const url = URL.createObjectURL(blob); const a = document.createElement('a'); a.href = url;
                     const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
-                    // 檔名加上 Pure 標記
                     a.download = `Slot_ManualView_${this.taskCount}Spins_${timestamp}.webm`;
-                   document.body.appendChild(a);
-                    a.click();
-                    setTimeout(() => {
-                        document.body.removeChild(a);
-                        window.URL.revokeObjectURL(url);
-                    }, 100);
+                    document.body.appendChild(a); a.click();
+                    setTimeout(() => { document.body.removeChild(a); window.URL.revokeObjectURL(url); }, 100);
                 },
-
                 cleanup: function() {
-                    this.isRecording = false;
-                    this.updateStatus("");
-        
-                    // 停止串流 (消除瀏覽器上方的紅點)
-                    if (this.stream) {
-                        this.stream.getTracks().forEach(track => track.stop());
-                    }
-                    this.recorder = null;
-                    this.stream = null;
+                    this.isRecording = false; this.updateStatus("");
+                    if (this.stream) { this.stream.getTracks().forEach(track => track.stop()); }
+                    this.recorder = null; this.stream = null;
                 },
-
                 updateStatus: function(msg) {
-                    const el = document.getElementById('rec-status');
-                    if (el) el.innerText = msg;
+                    const el = document.getElementById('rec-status'); if (el) el.innerText = msg;
                 }
             };
 
             window.runQCReport = function() {
-            const em = settings.spinEmulator;
-            const resultBox = document.getElementById('qc-result');
-            
-            if (!em || !em.spin_emulator_data || em.spin_emulator_data.length === 0) {
-                alert('請先在「動態」分頁載入模擬輪帶 JSON！');
-                return;
-            }
+                const em = settings.spinEmulator; const resultBox = document.getElementById('qc-result');
+                if (!em || !em.spin_emulator_data || em.spin_emulator_data.length === 0) { alert('請先在「動態」分頁載入模擬輪帶 JSON！'); return; }
+                resultBox.style.display = 'block'; resultBox.innerHTML = '計算中...';
+                setTimeout(() => {
+                    const totalSpins = em.spin_emulator_data.length; const symbolCounts = {}; const map = em.symbol_id_map || {};
+                    Object.keys(map).forEach(key => { symbolCounts[map[key]] = 0; });
+                    em.spin_emulator_data.forEach(spin => { spin.forEach(reel => { reel.forEach(symId => { const symName = map[String(symId)] || 'Unknown'; symbolCounts[symName] = (symbolCounts[symName] || 0) + 1; }); }); });
+                    let html = `<b style="color:#00bcd4;">總模擬手數: ${totalSpins} 手</b><br><br><table style="width:100%; border-collapse:collapse; text-align:left;"><tr style="border-bottom:1px solid #444;"><th>圖騰</th><th>出現次數</th><th>均次/手</th></tr>`;
+                    const sortedKeys = Object.keys(symbolCounts).sort((a, b) => symbolCounts[b] - symbolCounts[a]);
+                    sortedKeys.forEach(name => { const count = symbolCounts[name]; const avg = (count / totalSpins).toFixed(2); html += `<tr><td>${name}</td><td>${count}</td><td>${avg}</td></tr>`; });
+                    html += `</table>`; resultBox.innerHTML = html; console.log('QC 報告產生完畢:', symbolCounts);
+                }, 100);
+            };
 
-            resultBox.style.display = 'block';
-            resultBox.innerHTML = '計算中...';
-
-            setTimeout(() => {
-                const totalSpins = em.spin_emulator_data.length;
-                const symbolCounts = {};
-                const map = em.symbol_id_map || {};
-                
-                // 初始化計數器
-                Object.keys(map).forEach(key => { symbolCounts[map[key]] = 0; });
-
-                // 掃描所有腳本
-                em.spin_emulator_data.forEach(spin => {
-                    spin.forEach(reel => {
-                        reel.forEach(symId => {
-                            const symName = map[String(symId)] || 'Unknown';
-                            symbolCounts[symName] = (symbolCounts[symName] || 0) + 1;
-                        });
-                    });
-                });
-
-                // 產出報告 HTML
-                let html = `<b style="color:#00bcd4;">總模擬手數: ${totalSpins} 手</b><br><br>`;
-                html += `<table style="width:100%; border-collapse:collapse; text-align:left;">`;
-                html += `<tr style="border-bottom:1px solid #444;"><th>圖騰</th><th>出現次數</th><th>均次/手</th></tr>`;
-                
-                // 排序並印出
-                const sortedKeys = Object.keys(symbolCounts).sort((a, b) => symbolCounts[b] - symbolCounts[a]);
-                sortedKeys.forEach(name => {
-                    const count = symbolCounts[name];
-                    const avg = (count / totalSpins).toFixed(2);
-                    html += `<tr><td>${name}</td><td>${count}</td><td>${avg}</td></tr>`;
-                });
-                
-                html += `</table>`;
-                resultBox.innerHTML = html;
-                console.log('QC 報告產生完畢:', symbolCounts);
-            }, 100);
-        };
-
-</script>
+    </script>
 </body>
 </html>
