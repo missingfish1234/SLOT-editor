@@ -944,38 +944,44 @@
                 
                 // [Spine 擴充] 檢查是否有 Spine 標記
                 if (sym.dataset.hasSpine === 'true' && !sym.querySelector('.spine-player')) {
-                    const img = sym.querySelector('.main-img');
-                    if(img) img.style.opacity = '0'; // 隱藏靜態圖
                     
-                    const imgData = settings.images.find(i => String(i.id) === sym.dataset.symId);
-                    
-                    if(imgData && imgData.spineData) {
-                        const spineContainer = document.createElement('div');
-                        spineContainer.className = 'spine-player';
-                        spineContainer.style.position = 'absolute';
-                        spineContainer.style.top = '0';
-                        spineContainer.style.left = '0';
-                        spineContainer.style.width = '100%';
-                        spineContainer.style.height = '100%';
-                        spineContainer.style.zIndex = '10';
-                        sym.appendChild(spineContainer);
+                    // 👇 新增安全檢查：如果找不到 spine 引擎，就放棄播動畫，直接用靜態圖報獎，避免當機
+                    if (typeof spine === 'undefined') {
+                        console.error("⚠️ 警告: Spine 引擎未成功載入，退回靜態圖騰報獎。請檢查網路或 <head> 標籤。");
+                    } else {
+                        // 👇 原本的 Spine 播放邏輯
+                        const img = sym.querySelector('.main-img');
+                        if(img) img.style.opacity = '0'; // 隱藏靜態圖
                         
-                        new spine.SpinePlayer(spineContainer, {
-                            jsonUrl: imgData.spineData.jsonName,
-                            atlasUrl: imgData.spineData.atlasName,
-                            rawDataURIs: imgData.spineData.rawDataURIs,
-                            alpha: true, 
-                            backgroundColor: "#00000000", 
-                            showControls: false,
-                            success: function(player) {
-                                const anims = player.skeleton.data.animations;
-                                const hasWin = anims.some(a => a.name === 'win');
-                                player.setAnimation(hasWin ? 'win' : anims[0].name);
-                            }
-                        });
-                    }
+                        const imgData = settings.images.find(i => String(i.id) === sym.dataset.symId);
+                        
+                        if(imgData && imgData.spineData) {
+                            const spineContainer = document.createElement('div');
+                            spineContainer.className = 'spine-player';
+                            spineContainer.style.position = 'absolute';
+                            spineContainer.style.top = '0';
+                            spineContainer.style.left = '0';
+                            spineContainer.style.width = '100%';
+                            spineContainer.style.height = '100%';
+                            spineContainer.style.zIndex = '10';
+                            sym.appendChild(spineContainer);
+                            
+                            new spine.SpinePlayer(spineContainer, {
+                                jsonUrl: imgData.spineData.jsonName,
+                                atlasUrl: imgData.spineData.atlasName,
+                                rawDataURIs: imgData.spineData.rawDataURIs, 
+                                alpha: true, 
+                                backgroundColor: "#00000000", 
+                                showControls: false,
+                                success: function(player) {
+                                    const anims = player.skeleton.data.animations;
+                                    const hasWin = anims.some(a => a.name === 'win');
+                                    player.setAnimation(hasWin ? 'win' : anims[0].name);
+                                }
+                            });
+                        }
+                    } // 結束安全檢查
                 }
-            }
             void divs[0].offsetWidth;
             for (const sym of divs) { sym.classList.add('win-glow'); sym.classList.add('win-pulse'); }
             await _delay(durMs);
