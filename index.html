@@ -2269,11 +2269,16 @@
                             <label style="font-size:10px;color:#aaa;"><input type="checkbox" ${img.allowMain !== false ?'checked':''} onchange="updateScope(${idx}, 'main', this.checked)"> 主盤</label>
                             <label style="font-size:10px;color:#4fc3f7;"><input type="checkbox" ${img.allowTop !== false ?'checked':''} onchange="updateScope(${idx}, 'top', this.checked)"> 橫轉</label>
                         </div>
-                        <div style="display:flex; gap:10px; margin-top:6px;">
+                        <div style="display:flex; gap:10px; margin-top:6px; align-items:center;">
                             <label style="font-size:12px; display:flex; align-items:center;"><input type="checkbox" ${img.isWild?'checked':''} onchange="updateWild(${idx}, this.checked)"> WILD</label>
                             <label style="font-size:12px; display:flex; align-items:center; color:#ffb74d;"><input type="checkbox" ${img.isScatter?'checked':''} onchange="updateScatter(${idx}, this.checked)"> SCATTER</label>
+                            
+                            <div style="margin-left:auto; display:flex; align-items:center; gap:5px;">
+                                <span style="font-size:11px; font-weight:bold; color:${img.isSpine ? '#ce93d8' : '#555'};">${img.isSpine ? '👾 已綁定' : ''}</span>
+                                <button class="btn-small" style="padding:2px 6px; font-size:11px; background:#4a148c; color:#fff;" onclick="triggerBindSpine(${idx})">綁定動態 (Spine)</button>
+                            </div>
                         </div>
-                    </div>`; 
+                    </div>`;
                 con.appendChild(item); 
             }); 
         }
@@ -2468,6 +2473,64 @@
                     html += `</table>`; resultBox.innerHTML = html; console.log('QC 報告產生完畢:', symbolCounts);
                 }, 100);
             };
+
+            // ==========================================
+            // 單一圖騰綁定 Spine 邏輯 (User 提議之優化版)
+            // ==========================================
+            let _bindSpineTargetIdx = -1;
+            const bindSpineInput = document.createElement('input');
+            bindSpineInput.type = 'file';
+            bindSpineInput.multiple = true;
+            bindSpineInput.accept = '.json,.skel,.atlas,.txt,.png';
+            bindSpineInput.style.display = 'none';
+            document.body.appendChild(bindSpineInput);
+
+            // 點擊按鈕時觸發
+            window.triggerBindSpine = function(idx) {
+                _bindSpineTargetIdx = idx;
+                bindSpineInput.click();
+            };
+
+            // 處理多選檔案並綁定給指定圖騰
+            bindSpineInput.addEventListener('change', async (e) => {
+                if (_bindSpineTargetIdx === -1) return;
+                const files = Array.from(e.target.files);
+                if (files.length === 0) return;
+
+                const jsonFile = files.find(f => f.name.endsWith('.json') || f.name.endsWith('.skel'));
+                const atlasFile = files.find(f => f.name.endsWith('.atlas') || f.name.endsWith('.txt'));
+                const pngFiles = files.filter(f => f.name.endsWith('.png'));
+
+                if (!jsonFile || !atlasFile || pngFiles.length === 0) {
+                    alert('Spine 檔案不齊全！\\n請按住 Ctrl (或全選)，同時選取 .json, .atlas 與 .png 檔案。');
+                    e.target.value = '';
+                    return;
+                }
+
+                // 建立虛擬網址
+                const rawDataURIs = {};
+                rawDataURIs[jsonFile.name] = URL.createObjectURL(jsonFile);
+                rawDataURIs[atlasFile.name] = URL.createObjectURL(atlasFile);
+                for (let p of pngFiles) {
+                    rawDataURIs[p.name] = URL.createObjectURL(p);
+                }
+
+                // 將資料寫入原本的靜態圖片物件中
+                const imgObj = settings.images[_bindSpineTargetIdx];
+                imgObj.isSpine = true;
+                imgObj.spineData = {
+                    jsonName: jsonFile.name,
+                    atlasName: atlasFile.name,
+                    rawDataURIs: rawDataURIs
+                };
+
+                alert(`成功將 Spine 動態綁定至圖騰：${imgObj.name}`);
+                
+                // 重新渲染列表與盤面
+                renderImgList();
+                updateGrid();
+                e.target.value = '';
+            });
 
     </script>
 </body>
